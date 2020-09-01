@@ -48,6 +48,7 @@ func main() {
 	//router.POST("/users/login", routes.UsersLogin)
 	itemsGroup := router.Group("items")
 	{
+		itemsGroup.GET("index", routes.ItemIndex)
 		itemsGroup.POST("create", authMiddleWare(), routes.ItemsCreate)
 	}
 

@@ -8,6 +8,16 @@ import (
 	"net/http"
 )
 
+func ItemIndex(c *gin.Context) {
+	db, _ := c.Get("db")
+	conn := db.(pgx.Conn)
+	items, err := models.GetAllItems(&conn)
+	if err != nil {
+		fmt.Println(err)
+	}
+	c.JSON(http.StatusOK, gin.H{"items": items})
+}
+
 func ItemsCreate(c *gin.Context){
 	userID := c.GetString("user_id")
 	db, _ := c.Get("db")

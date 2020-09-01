@@ -38,3 +38,23 @@ func (i *Item) Create(conn *pgx.Conn, userID string) error {
 
 	return nil
 }
+
+func GetAllItems(conn *pgx.Conn) ([]Item, error) {
+	rows, err := conn.Query(context.Background(), "SELECT id, title, notes, seller_id, price_in_cents FROM item")
+	if err != nil {
+		fmt.Println(err)
+		return nil, fmt.Errorf("Error getting items")
+	}
+
+	var items []Item
+	for rows.Next() {
+		item := Item{}
+		err := rows.Scan(&item.ID, &item.Title, &item.Notes, &item.SellerID, &item.PriceInCents)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		items = append(items, item)
+	}
+	return items, nil
+}
