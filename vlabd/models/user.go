@@ -69,3 +69,21 @@ func (u *User) GetAuthToken() (string, error) {
 	authToken, err := token.SignedString(tokenSecret)
 	return authToken, err
 }
+
+func (u *User) IsAuthenticated(conn *pgx.Conn) error {
+	row := conn.QueryRow(context.Background(), "SELECT id, password_hash FROM user_account WHERE email = $1", u.Email)
+	err := row.Scan(&u.ID, &u.PasswordHash)
+	
+	if err == pgx.ErrNoRows {
+		fmt.Println("User with email not found")
+		return fmt.Errorf("Invalid login credentials")
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(u.Password))
+
+	if err != nil {
+		return fmt.Errorf("Invalid login credentials")
+	}
+
+	return nil
+}

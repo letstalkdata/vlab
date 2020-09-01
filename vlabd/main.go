@@ -12,7 +12,7 @@ import (
 
 func connectDB() (c *pgx.Conn, err error){
 	conn, err := pgx.Connect(context.Background(), "postgresql://postgres:vlab@localhost:5432/vlab")
-	if err != nil {
+	if err != nil || conn == nil {
 		fmt.Println("Error Connecting to DB")
 		fmt.Println(err.Error())
 	}
@@ -21,7 +21,7 @@ func connectDB() (c *pgx.Conn, err error){
 }
 
 func dbMiddleware(conn pgx.Conn) gin.HandlerFunc {
-	return func (c *gin.Context) {
+	return func(c *gin.Context) {
 		c.Set("db", conn)
 		c.Next()
 	}
@@ -41,7 +41,11 @@ func main() {
 	usersGroup := router.Group("users") 
 	{
 		usersGroup.POST("register", routes.UsersRegister)
+		usersGroup.POST("login", routes.UsersLogin)
 	}
+	//router.POST("/users/register", routes.UsersRegister)
+	//router.POST("/users/login", routes.UsersLogin)
+	
 
 
 	router.Run(":3000")
